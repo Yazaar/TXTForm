@@ -1,5 +1,6 @@
 # TXTForm
 *Text transformation web service built on top of PostgreSQL and async Python 3.11*
+
 Seamlessly connect various services and provide dynamic data access for external platforms. Developed primarily for use within the Twitch streaming space to give bots such as StreamElements access to an enhanced amount of services with dynamic responses. Includes Spotify integration through the currently playing song and by which artist(s) may be accessed.
 
 When it comes to Twitch able to restrict when information becomes publically available. One response may be returned if the stream is online, with Spotify-related playing information. Another if the stream is offline to keep the information private and secure.
