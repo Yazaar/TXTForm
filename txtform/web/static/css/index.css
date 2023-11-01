@@ -1,0 +1,52 @@
+.hero {
+    min-height: 75vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.hero.reverse {
+    flex-direction: row-reverse;
+}
+
+.hero.low {
+    min-height: 0vh;
+    padding: 40px 0;
+}
+
+.imageContainer img {
+    width: 40vw;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.textContainer {
+    width: 30vw;
+    background: rgba(0, 0, 0, .5);
+    border: #8c28c5 solid 3px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+p {
+    font-size: 1.3rem;
+}
+
+@media screen and (max-width: 50rem) {
+    .hero, .hero.reverse {
+        flex-direction: column-reverse;
+        min-height: 0;
+    }
+
+    .textContainer {
+        margin: 50px 0 20px 0;
+        width: auto;
+        max-width: 75vw;
+    }
+
+    .imageContainer img {
+        width: 90vw;
+        max-height: 50vh;
+        object-position: top;
+    }
+}

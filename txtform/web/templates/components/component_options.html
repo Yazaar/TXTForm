@@ -1,0 +1,6 @@
+<option value="*" default hidden>pick type</option>
+<option value="text">Text</option>
+{% if spotify_connected %}
+<option value="spotifyCurrentSong" data-requires="spotifyAccount">Spotify: Current song</option>
+<option value="spotifyCurrentArtist" data-requires="spotifyAccount">Spotify: Current artist</option>
+{% endif %}

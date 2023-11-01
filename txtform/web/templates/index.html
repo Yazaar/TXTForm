@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXTForm | Alpha</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1">
+    <link rel="stylesheet" href="/static/css/index.css?v=1">
+</head>
+<body>
+    <header>
+        <h1 class="logo">
+            <a href="/" class="flatURL">
+                <span id="headertxt">TXT</span><span class="purpleText">form</span>
+                <span id="headeralpha"><span class="purpleText">(</span>ALPHA<span class="purpleText">)</span></span>
+            </a>
+        </h1>
+        <div id="headerLinks">
+            {% if login %}
+            <a href="/dashboard" class="button">
+                <span>Dashboard</span>
+            </a>
+            <a href="/logout" class="button">
+                <span>Sign out</span>
+            </a>
+            {% else %}
+            <a href="/login/twitch" class="button">
+                <span>Twitch login</span>
+            </a>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        <h2>Info and updates</h2>
+        <p>No updates</p>
+        <div class="hero low">
+            <div class="imageContainer">
+                <a href="https://github.com/Yazaar/TXTForm" target="_blank" rel="noopener noreferrer" class="button"><span>View on GitHub</span></a>
+            </div>
+            <div class="textContainer">
+                <h2>Project is <span class="purpleText">open source</span></h2>
+                <p class="topSpacing">TXTForm is all open source and licenced as <span class="purpleText">MIT</span>!</p>
+                <p class="topSpacing">Explore the project on GitHub!</p>
+            </div>
+        </div>
+        <div class="hero reverse">
+            <div class="imageContainer">
+                <img src="/static/img/what_is_txtform.png?v=1" class="image3x">
+            </div>
+            <div class="textContainer">
+                <h2>This is <span class="purpleText">TXTForm</span></h2>
+                <p class="topSpacing">Link your accounts and gain access to their information through simple to use API requests.</p>
+                <p class="topSpacing">Let your Twitch stream know what is currently playing on Spotify by linking your Spotify account!</p>
+            </div>
+        </div>
+        <div class="hero">
+            <div class="imageContainer">
+                <img src="/static/img/dashboard_preview.jpg" class="image1x">
+            </div>
+            <div class="textContainer">
+                <h2><span class="purpleText">You</span> in control</h2>
+                <p class="topSpacing">Once you sign in everything is controlled from an easily managable dashboard.</p>
+            </div>
+        </div>
+        <div class="hero reverse">
+            <div class="imageContainer">
+                <img src="/static/img/response_preview.jpg" class="image3x">
+            </div>
+            <div class="textContainer">
+                <h2>Fully <span class="purpleText">customizable</span> responses</h2>
+                <p class="topSpacing">Add components such as free text and Spotify specific information in your responses.</p>
+            </div>
+        </div>
+        <div class="hero">
+            <div class="imageContainer">
+                <img src="/static/img/flow_preview.jpg" class="image2x">
+            </div>
+            <div class="textContainer">
+                <h2>Decide <span class="purpleText">response</span> depending on <span class="purpleText">scenario</span></h2>
+                <p class="topSpacing">Have one response for when the stream is offline, another for when the stream is online!</p>
+                <p class="topSpacing">First state from the top is returned as the response, here response named playing is returned if live else offline.</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

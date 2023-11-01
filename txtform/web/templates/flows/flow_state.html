@@ -1,0 +1,30 @@
+<div class="flowState" data-id="{% if flow_state%}{{flow_state.id}}{% endif %}">
+    <p>Condition</p>
+    <select name="condition" class="flowCondition">
+        <option value="never"{% if flow_state and flow_state.flow_type == 'never' %} selected{% endif %}>Never</option>
+        <option value="always"{% if flow_state and flow_state.flow_type == 'always' %} selected{% endif %}>Always</option>
+        {% if twitch_accounts %}
+        <option value="twitchLive"{% if flow_state and flow_state.flow_type == 'twitchLive' %} selected{% endif %}>Twitch live</option>
+        {% endif %}
+    </select>
+    <div class="twitchPicker topSpacing{% if flow_state and flow_state.flow_type == 'twitchLive' %} show{% endif %}">
+        <p>Twitch channel</p>
+        <select name="twitch_id" class="twitchCondition">
+            <option value="*" hidden>Pick channel</option>
+            {% for twitch_account in twitch_accounts|reverse %}
+            <option value="{{twitch_account.id}}"{% if flow_state and twitch_account.id == flow_state.variables['twitch_id'] %} selected{% endif %}>{{twitch_account.label}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <p class="topSpacing">Response</p>
+    <select name="response_id" class="flowResponse">
+        <option value="*" hidden>Pick response</option>
+        {% for response in responses|reverse %}
+        <option value="{{response.id}}"{% if flow_state and response.id == flow_state.response_id %} selected{% endif %}>{{response.label}}</option>
+        {% endfor %}
+    </select>
+    <div class="topSpacing2">
+        <div class="button smaller rightSpacing2 addState">Add state</div>
+        <div class="button smaller red deleteState">Delete state</div>
+    </div>
+</div>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXTForm Dashboard | Alpha</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1">
+    <link rel="stylesheet" href="/static/css/dashboard.css?v=2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+        <h1>
+            <a href="/" class="flatURL">
+                <span id="headertxt">TXT</span><span class="purpleText">form</span>
+                <span id="headeralpha"><span class="purpleText">(</span>ALPHA<span class="purpleText">)</span></span>
+            </a>
+        </h1>
+        <div id="headerLinks" class="left">
+            <a href="/logout" class="button">
+                <span>Sign out</span>
+            </a>
+        </div>
+    </header>
+    <main>
+        <h2 class="topSpacing">Account</h2>
+        <div class="topSpacing">
+            <div id="myAccountBTN" class="button"><span>My account</span></div>
+        </div>
+        <h2 class="topSpacing">Connections</h2>
+        <div id="connections">
+            <div class="cards">
+                {%for spotify_account in spotify_accounts%}
+                <div class="card account" data-id="{{spotify_account.id}}" data-name="{{spotify_account.label}}" data-accountType="spotify">
+                    <p class="descriptor">Spotify</p>
+                    <p class="name">{{spotify_account.label}}</p>
+                    <div class="row2">
+                        <div class="button smaller dark editAccount">edit</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="connectNewAccount" class="button"><span>Connect account</span></div>
+        </div>
+        <h2 class="topSpacing">Flows</h2>
+        <p>Flows decide what is replied with and when</p>
+        <div id="showNewFlowOverlayBTN" class="button"><span>New Flow</span></div>
+        <div id="flows" class="cards topSpacing">
+            {% for flow in flows|reverse %}
+            <div class="card" data-id="{{flow.id}}" data-name="{{flow.label}}">
+                <p class="name"><span class="copyLink"><i class="fa-solid fa-link"></i></span> {{flow.label}}</p>
+                <div class="row2">
+                    <div class="button smaller dark editFlow">edit</div>
+                    <div class="toggle{% if flow.enabled %} enabled{% endif %}"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <h2 class="topSpacing">Responses</h2>
+        <p>Responsive text replies used within flows</p>
+        <div id="showNewResponseOverlayBTN" class="button"><span>New response</span></div>
+        <div id="responses" class="cards topSpacing">
+            {% for response in responses|reverse %}
+            <div class="card" data-id="{{response.id}}" data-name="{{response.label}}">
+                <p class="name">{{response.label}}</p>
+                <div class="row2">
+                    <div class="button smaller dark editResponse">edit</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div id="flowOverlay" class="overlay">
+            <div id="flowOverlayContent" class="content">
+                <form action="/flows/delete" method="post" id="deleteFlowForm" hidden>
+                    <input type="text" name="flowID" id="deleteFlowID">
+                </form>
+                <h2>Flow</h2>
+                <label for="flowNameInput">Flow name</label>
+                <div>
+                    <input type="text" id="flowNameInput">
+                </div>
+                <h3 class="topSpacing">States</h3>
+                <div id="flowStates" class="flowStates"></div>
+                <p id="saveFlowError" class="purpleText"></p>
+                <div class="topSpacing">
+                    <div id="saveFlow" class="button smaller rightSpacing">Save</div>
+                    <div id="cancelFlow" class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                    <div id="deleteFlow" class="button smaller red">Delete flow</div>
+                </div>
+            </div>
+        </div>
+        <div id="responseOverlay" class="overlay">
+            <div id="responseOverlayContent" class="content">
+                <form action="/responses/delete" method="post" id="deleteResponseForm" hidden>
+                    <input type="text" name="respID" id="deleteResponseID">
+                </form>
+                <h2>Response</h2>
+                <label for="responseNameInput">Response name</label>
+                <div>
+                    <input type="text" id="responseNameInput">
+                </div>
+                <h3 class="topSpacing">Components</h3>
+                <div id="responseComponents" class="components"></div>
+                <p id="saveResponseError" class="purpleText"></p>
+                <div class="topSpacing">
+                    <div id="saveResponse" class="button smaller rightSpacing">Save</div>
+                    <div id="cancelResponse" class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                    <div id="deleteResponse" class="button smaller red">Delete</div>
+                </div>
+            </div>
+        </div>
+        <div id="responseComponentOverlay" class="overlay">
+            <div id="responseComponentOverlayContent" class="content">
+                <h2>New component</h2>
+                <h3>Component type</h3>
+                <select id="responseComponentSelect"></select>
+                <div id="spotifyAccountPicker" class="componentRequirement">
+                    <h3>Spotify account</h3>
+                    <select name="spotifyAccount">
+                        <option value="*" default hidden>select account</option>
+                        {% for spotify_account in spotify_accounts|reverse %}
+                        <option value="{{spotify_account.id}}">{{spotify_account.label}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="topSpacing">
+                    <div id="saveResponseComponent" class="button smaller rightSpacing">Save</div>
+                    <div id="cancelResponseComponent" class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                    <div id="deleteResponseComponent" class="button smaller red">Delete</div>
+                </div>
+            </div>
+        </div>
+        <div id="connectNewAccountOverlay" class="overlay">
+            <div class="content">
+                <h2>Connect account</h2>
+                <a href="/apis/spotify/connect" class="button">Spotify</a>
+                <div class="topSpacing">
+                    <div class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                </div>
+            </div>
+        </div>
+        <div id="disconnectAccountOverlay" class="overlay">
+            <div class="content">
+                <h2>Edit <span id="disconnectAccountType"></span></h2>
+                <a href="/apis/spotify/connect" id="disconnectAccountBTN" class="button">Disconnect</a>
+                <div class="topSpacing">
+                    <div class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                </div>
+            </div>
+        </div>
+        <div id="newResponseOverlay" class="overlay">
+            <div class="content">
+                <h2>New response</h2>
+                <label for="newResponseName">Response name</label>
+                <form action="/responses/new" method="post" id="newResponseForm">
+                    <input type="text" name="name" id="newResponseName">
+                    <p id="newResponseError" class="purpleText"></p>
+                </form>
+                <div class="topSpacing">
+                    <div id="newResponseBTN" class="button smaller rightSpacing2">Create</div>
+                    <div class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                </div>
+            </div>
+        </div>
+        <div id="newFlowOverlay" class="overlay">
+            <div class="content">
+                <h2>New flow</h2>
+                <label for="newFlowName">Flow name</label>
+                <form action="/flows/new" method="post" id="newFlowForm">
+                    <input type="text" name="name" id="newFlowName">
+                    <p id="newFlowError" class="purpleText"></p>
+                </form>
+                <div class="topSpacing">
+                    <div id="newFlowBTN" class="button smaller rightSpacing2">Create</div>
+                    <div class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                </div>
+            </div>
+        </div>
+        <div id="myAccountOverlay" class="overlay">
+            <div class="content">
+                <h2>My account</h2>
+                <label for="myAccountUsername">Username</label>
+                <div>
+                    <input type="text" data-username="{{login.username}}" id="myAccountUsername">
+                </div>
+                <p id="myAccountError" class="purpleText"></p>
+                <div class="topSpacing">
+                    <div id="saveMyAccountBTN" class="button smaller rightSpacing2">Save</div>
+                    <div class="button smaller red rightSpacing2 closeOverlayBTN">Cancel</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="/static/js/dashboard.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: #8c28c5;
+    padding: 5px 10px;
+    min-width: 15ch;
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.card .name {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.card .descriptor {
+    font-weight: 700;
+}
+
+.card .row2 {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.copyLink {
+    cursor: pointer;
+    position: relative;
+}
+
+.copyLink:hover:before {
+    content: 'Copy link';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: .8rem;
+    background: rgba(0, 0, 0, .6);
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+
+.copyLink.copied:hover:before {
+    content: 'Copied link';
+}
+
+.toggle {
+    position: relative;
+    background: rgba(0, 0, 0, .6);
+    width: 2.5rem;
+    height: 1.4rem;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+.toggle::before {
+    content: '';
+    position: absolute;
+    background: #8c28c5;
+    border-radius: 50%;
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    top: 50%;
+    left: .2rem;
+    transform: translateY(-50%);
+    transition: left ease-out 100ms, opacity ease-in-out 100ms;
+}
+
+.toggle.timeout::before {
+    opacity: .5;
+}
+
+.toggle.enabled::before {
+    left: 1.3rem;
+}
+
+.componentRequirement {
+    display: none;
+}
+
+.componentRequirement.show {
+    display: block;
+}
+
+.overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .3);
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay.show {
+    display: flex;
+}
+
+.overlay .content {
+    box-sizing: border-box;
+    background: #000000;
+    border: #8c28c5 2px solid;
+    min-width: min(60ch, 90vw);
+    max-width: 90vw;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.overlay .content input[type=text] {
+    background: transparent;
+    padding: 2px 5px;
+    border: #8c28c5 solid 1px;
+    outline: none;
+    border-radius: 5px;
+}
+
+.overlay .content select {
+    background: black;
+    padding: 2px 5px;
+    border: #8c28c5 solid 1px;
+    outline: none;
+    border-radius: 5px;
+}
+
+.components {
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.components .component {
+    padding-top: 1.3rem;
+    margin: 5px 5px 5px 1.2rem;
+    position: relative;
+}
+
+.components .component input {
+    width: 15ch;
+}
+
+.components .component > .addComponent {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.components .component > .addComponent:hover {
+    transform: scale(1.25);
+    color: #8c28c5;
+}
+
+.components .component > .addComponent:hover::before {
+    content: 'Add';
+    background: rgba(0, 0, 0, .75);
+    padding: 2px 5px;
+    border-radius: 3px;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: .75rem;
+}
+
+.flowState {
+    border-top: solid #8c28c5 2px;
+    padding: 5px 0;
+}
+
+.twitchPicker {
+    display: none;
+}
+
+.twitchPicker.show {
+    display: block;
+}
