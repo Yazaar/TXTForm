@@ -475,7 +475,7 @@ async def app_spotifyConnect(request : web.Request):
     if not session_key: return web.Response(text='no session', status=302, headers={'location': '/?spotifyConnectError=no%20session'})
     login = await db.get_login_by_session(session_key)
     if not login: web.Response(text='invalid session', status=302, headers={'location': '/?spotifyConnectError=invalid%20session'})
-    location = f'https://accounts.spotify.com/authorize?response_type=code&client_id={SPOTIFY_CLIENT_ID}&scope={SPOTIFY_SCOPES_ENCODED}&redirect_uri={SPOTIFY_REDIRECT_ENCODED}'
+    location = f'https://accounts.spotify.com/authorize?response_type=code&client_id={SPOTIFY_CLIENT_ID}&scope={SPOTIFY_SCOPES_ENCODED}&redirect_uri={SPOTIFY_REDIRECT_ENCODED}&show_dialog=true'
     return web.Response(text='hi', status=302, headers={'location': location})
 
 @routes.get('/apis/spotify/callback')
