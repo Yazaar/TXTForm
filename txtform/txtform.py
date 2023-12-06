@@ -395,7 +395,7 @@ async def app_render_component(request : web.Request):
 
     return web.Response(text=t.render(spotify_id=match_account.id, spotify_label=match_account.label), content_type='text/html')
 
-@routes.get('/render/components/{respID:\d+}')
+@routes.get(r'/render/components/{respID:\d+}')
 async def app_render_components(request : web.Request):
     session_key = request.cookies.get('session', None)
     if not session_key: return web.Response(text='')
@@ -440,7 +440,7 @@ async def app_render_flows(request : web.Request):
     t = j2.get_template('flows/flow_state.html')
     return web.Response(text=t.render(responses=responses, twitch_accounts=twitch_accounts))
 
-@routes.get('/render/flows/{flowID:\d+}')
+@routes.get(r'/render/flows/{flowID:\d+}')
 async def app_render_flows(request : web.Request):
     session_key = request.cookies.get('session', None)
     if not session_key: return web.Response(text='')
@@ -503,7 +503,7 @@ async def app_spotifyConnectCallback(request : web.Request):
 
     access_token = resp.get('access_token', None)
     expires_in = resp.get('expires_in', None)
-    expires_at = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
+    expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=expires_in)
     refresh_token = resp.get('refresh_token', None)
     scope = resp.get('scope', None)
 
@@ -537,7 +537,7 @@ async def app_spotifyConnectCallback(request : web.Request):
 
     return web.Response(text='Connected', status=302, headers={'location': f'/dashboard'})
 
-@routes.get('/apis/spotify/disconnect/{accountID:\d+}')
+@routes.get(r'/apis/spotify/disconnect/{accountID:\d+}')
 async def app_apis_spotify_disconnect(request : web.Request):
     account_id = int(request.match_info['accountID'])
     session_token = request.cookies.get('session')
@@ -584,7 +584,7 @@ async def app_twitchLoginCallback(request : web.Request):
 
     access_token = resp['access_token']
     expires_in = resp['expires_in']
-    validity = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
+    validity = datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=expires_in)
     refresh_token = resp['refresh_token']
     scopes = resp.get('scope', list())
 
@@ -652,6 +652,29 @@ async def app_u_username_flow_flowname_text(request : web.Request):
     state_text_response = await sm.get_state_text_response(active_state)
     if not isinstance(state_text_response, str): return web.Response(text='')
     return web.Response(text=state_text_response)
+
+@routes.get('/api/account/{accountType:[a-z]+}/{accountId:[0-9]+}/accountSecret')
+async def app_api_account_accountType_accountId_accountSecret(request : web.Request):
+    accountType = request.match_info['accountType'].lower()
+    accountId = int(request.match_info['accountId'])
+    session_token = request.cookies.get('session')
+    if session_token is None: return web.Response(text=json.dumps({'success': False, 'message': 'no session please login'}))
+    login = await db.get_login_by_session(session_token)
+    if login is None: return web.Response(text=json.dumps({'success': False, 'message': 'invalid session please login'}))
+
+    if accountType == 'spotify':
+        spotify_accounts = await db.get_spotify_accounts_by_login(login)
+        spotify_account = helper.find_by_key('id', accountId, spotify_accounts)
+        if spotify_account: return web.Response(text=json.dumps({'success': True, 'id_token': spotify_account.id_token}))
+        return web.Response(text=json.dumps({'success': False, 'message': 'spotify account not found'}))
+    return web.Response(text=json.dumps({'success': False, 'message': 'invalid account type'}))
+
+@routes.get('/api/spotify/{accountSecret:[a-zA-Z0-9]+}/accessToken')
+async def app_api_spotify_accountSecret_accessToken(request : web.Request):
+    accountSecret = request.match_info['accountSecret']
+    spotify_account = await db.get_spotify_account_by_id_token(accountSecret)
+    spotify_account = await sm.test_spotify_tokens(spotify_account)
+    return web.Response(text=json.dumps({'success': True, 'access_token': spotify_account.access_token, 'validity': helper.datetime_string(spotify_account.validity)}))
 
 @routes.post('/webhook/twitch_live')
 async def app_webhook_twitch_live(request : web.Request):

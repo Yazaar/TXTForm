@@ -15,7 +15,7 @@ class Login_Session():
         self.__id = _id
         self.user_id = user_id
         self.session_token = session_token
-        self.validity = validity
+        self.validity = validity.replace(tzinfo=datetime.UTC)
 
     @property
     def id(self): return self.__id
@@ -32,13 +32,13 @@ class Twitch():
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.scopes = scopes
-        self.validity = validity
+        self.validity = validity.replace(tzinfo=datetime.UTC)
 
     @property
     def id(self): return self.__id
 
 class Spotify():
-    def __init__(self, _id : int, label : str, login_id : int, user_id : str, access_token : str, refresh_token : str, scopes : list[str], validity : datetime.datetime):
+    def __init__(self, _id : int, label : str, login_id : int, user_id : str, access_token : str, refresh_token : str, scopes : list[str], validity : datetime.datetime, id_token : str):
         self.__id = _id
         self.label = label
         self.login_id = login_id
@@ -46,7 +46,8 @@ class Spotify():
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.scopes = scopes
-        self.validity = validity
+        self.validity = validity.replace(tzinfo=datetime.UTC)
+        self.id_token = id_token
 
     @property
     def id(self): return self.__id
@@ -97,7 +98,7 @@ class Token():
     def __init__(self, token_name : str, token_value : str, validity : datetime.datetime):
         self.__token_name = token_name
         self.token_value = token_value
-        self.validity = validity
+        self.validity = validity.replace(tzinfo=datetime.UTC)
 
     @property
     def id(self): return self.__token_name

@@ -30,7 +30,7 @@ class TwitchWebhookManager():
         if (not isinstance(data, dict) or not 'access_token' in data or not 'expires_in' in data
             or not isinstance(data['access_token'], str) or not isinstance(data['expires_in'], int)): return None
 
-        validity = datetime.datetime.utcnow() + datetime.timedelta(seconds=data['expires_in'])
+        validity = datetime.datetime.now(datetime.UTC) + datetime.timedelta(seconds=data['expires_in'])
         self.__twitch_app_token = await self.__db.set_token('twitch_app', data['access_token'], validity)
 
     async def listen(self, channel_id : int):

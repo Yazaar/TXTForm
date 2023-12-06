@@ -83,6 +83,7 @@ class Database:
                                 refresh_token TEXT NOT NULL,
                                 scopes JSONB NOT NULL,
                                 validity TIMESTAMP NOT NULL,
+                                id_token TEXT NOT NULL,
                                 CONSTRAINT fk_login FOREIGN KEY(login_id) REFERENCES login(id),
                                 PRIMARY KEY(login_id, id)
                                 )''')
@@ -139,7 +140,7 @@ class Database:
         while True:
             try:
                 c = self.__adb.cursor()
-                await c.execute('SELECT username FROM login WHERE username ~ %s', (f'^{parsed_username}\d*$',))
+                await c.execute('SELECT username FROM login WHERE username ~ %s', (fr'^{parsed_username}\d*$',))
                 data = await c.fetchall()
                 await c.close()
                 return [i[0] for i in data]
@@ -216,7 +217,7 @@ class Database:
         while True:
             try:
                 new_session_token = f'{login.id}x{secrets.token_hex(20)}'
-                validity = datetime.datetime.utcnow() + datetime.timedelta(days=30)
+                validity = datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=30)
                 c = self.__adb.cursor()
                 await c.execute('''INSERT INTO login_session(id, login_id, session_token, validity)
                                 SELECT COALESCE(MAX(id)+1, 1), %s, %s, %s FROM login_session WHERE login_id = %s RETURNING id''', (login.id, new_session_token, validity, login.id))
@@ -243,7 +244,7 @@ class Database:
         while True:
             try:
                 c = self.__adb.cursor()
-                ts = datetime.datetime.utcnow()
+                ts = datetime.datetime.now(datetime.UTC)
                 await c.execute('''SELECT login.id, login.username, login.primary_account_src, login.primary_account_id, login_session.validity, login_session.id FROM login
                                    LEFT JOIN login_session
                                    ON login_session.login_id = login.id
@@ -251,9 +252,11 @@ class Database:
                                    LIMIT 1
                                 ''', (session_token, ts))
                 data = await c.fetchone()
-                update_at_time = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+                if data is None: return None
+                update_at_time = datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=3)
                 update_to_time = update_at_time + datetime.timedelta(hours=3)
-                if update_at_time > data[4]:
+                dbtime = data[4].replace(tzinfo=datetime.UTC)
+                if update_at_time > dbtime:
                     await c.execute('UPDATE login_session SET validity = %s WHERE id = %s', (update_to_time, data[5]))
                     await self.__adb.commit()
                 await c.close()
@@ -328,11 +331,23 @@ class Database:
         while True:
             try:
                 c = self.__adb.cursor()
-                await c.execute('SELECT id, label, login_id, user_id, access_token, refresh_token, scopes, validity FROM spotify_account WHERE login_id = %s',
+                await c.execute('SELECT id, label, login_id, user_id, access_token, refresh_token, scopes, validity, id_token FROM spotify_account WHERE login_id = %s',
                                 (login.id,))
                 accounts = await c.fetchall()
                 await c.close()
-                return [objects.Spotify(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]) for data in accounts]
+                return [objects.Spotify(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]) for data in accounts]
+            except psycopg.OperationalError:
+                await self.__tryReconnect()
+
+    async def get_spotify_account_by_id_token(self, id_token : str):
+        while True:
+            try:
+                c = self.__adb.cursor()
+                await c.execute('SELECT id, label, login_id, user_id, access_token, refresh_token, scopes, validity, id_token FROM spotify_account WHERE id_token = %s',
+                                (id_token,))
+                account = await c.fetchone()
+                await c.close()
+                return objects.Spotify(account[0], account[1], account[2], account[3], account[4], account[5], account[6], account[7], account[8]) if account else None
             except psycopg.OperationalError:
                 await self.__tryReconnect()
 
@@ -340,18 +355,18 @@ class Database:
         accounts = await self.get_spotify_accounts_by_login(login)
         match = helper.find_by_key('user_id', user_id, accounts)
         if match: return match
-
+        id_token = f'{login.id}x{user_id}x{secrets.token_hex(20)}'
         while True:
             try:
                 if label is None: label = str(int(time.time()))
                 c = self.__adb.cursor()
-                await c.execute('''INSERT INTO spotify_account(id, label, login_id, user_id, access_token, refresh_token, scopes, validity)
-                                SELECT COALESCE(MAX(id)+1, 1), %s, %s, %s, %s, %s, %s, %s FROM spotify_account WHERE login_id = %s RETURNING id''',
-                                (label, login.id, user_id, access_token, refresh_token, json.dumps(scopes), validity, login.id))
+                await c.execute('''INSERT INTO spotify_account(id, label, login_id, user_id, access_token, refresh_token, scopes, validity, id_token)
+                                SELECT COALESCE(MAX(id)+1, 1), %s, %s, %s, %s, %s, %s, %s, %s FROM spotify_account WHERE login_id = %s RETURNING id''',
+                                (label, login.id, user_id, access_token, refresh_token, json.dumps(scopes), validity, id_token, login.id))
                 last_id = await c.fetchone()
                 await self.__adb.commit()
                 await c.close()
-                return objects.Spotify(last_id, label, login.id, user_id, access_token, refresh_token, scopes, validity)
+                return objects.Spotify(last_id, label, login.id, user_id, access_token, refresh_token, scopes, validity, id_token)
             except psycopg.OperationalError:
                 await self.__tryReconnect()
 

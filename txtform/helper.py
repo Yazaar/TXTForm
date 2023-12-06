@@ -1,4 +1,4 @@
-import urllib.parse, aiohttp, string, random
+import urllib.parse, aiohttp, string, random, datetime
 
 BASE_CHARS = string.ascii_lowercase + string.ascii_uppercase + string.digits
 
@@ -45,3 +45,6 @@ def linked_string(string_items : list[str], primary_separator : str, last_separa
     if len(string_items) == 0: return ''
     if len(string_items) == 1: return string_items[0]
     return primary_separator.join(string_items[:-1]) + last_separator + string_items[-1]
+
+def datetime_string(dt : datetime.datetime):
+    return dt.isoformat() + 'Z'
