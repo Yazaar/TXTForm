@@ -669,15 +669,33 @@ async def app_api_account_accountType_accountId_accountSecret(request : web.Requ
         return web.Response(text=json.dumps({'success': False, 'message': 'spotify account not found'}))
     return web.Response(text=json.dumps({'success': False, 'message': 'invalid account type'}))
 
+@routes.options('/api/spotify/getAccessToken')
+async def app_options_api_kick_recent_subscription(request : web.Request):
+    resp_headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'account_token'
+    }
+
+    return web.Response(headers=resp_headers)
+
 @routes.get('/api/spotify/getAccessToken')
 async def app_api_spotify_accountSecret_accessToken(request : web.Request):
+    resp_headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'account_token'
+    }
     account_token_header = request.headers.get('account_token', None)
     if account_token_header is None: 
-        return web.Response(text=json.dumps({'success': False, 'message': 'account_token have to exist as a header'}))
+        return web.Response(text=json.dumps({'success': False, 'message': 'account_token have to exist as a header'}), headers=resp_headers)
     spotify_account = await db.get_spotify_account_by_id_token(account_token_header)
+    if spotify_account is None:
+        return web.Response(text=json.dumps({'success': False, 'message': 'Spotify account not found'}), headers=resp_headers)
     await sm.test_spotify_tokens(spotify_account)
     spotify_account = await db.get_spotify_account_by_id_token(account_token_header)
-    return web.Response(text=json.dumps({'success': True, 'access_token': spotify_account.access_token, 'validity': helper.datetime_string(spotify_account.validity)}))
+    return web.Response(text=json.dumps({'success': True, 'access_token': spotify_account.access_token, 'validity': helper.datetime_string(spotify_account.validity)}), headers=resp_headers)
 
 @routes.post('/webhook/twitch_live')
 async def app_webhook_twitch_live(request : web.Request):
