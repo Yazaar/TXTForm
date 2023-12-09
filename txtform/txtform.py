@@ -674,7 +674,7 @@ async def app_options_api_kick_recent_subscription(request : web.Request):
     resp_headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'account_token'
+        'Access-Control-Allow-Headers': 'account-token'
     }
 
     return web.Response(headers=resp_headers)
@@ -685,11 +685,11 @@ async def app_api_spotify_accountSecret_accessToken(request : web.Request):
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'account_token'
+        'Access-Control-Allow-Headers': 'account-token'
     }
-    account_token_header = request.headers.get('account_token', None)
+    account_token_header = request.headers.get('account-token', None)
     if account_token_header is None: 
-        return web.Response(text=json.dumps({'success': False, 'message': 'account_token have to exist as a header'}), headers=resp_headers)
+        return web.Response(text=json.dumps({'success': False, 'message': 'account-token have to exist as a header'}), headers=resp_headers)
     spotify_account = await db.get_spotify_account_by_id_token(account_token_header)
     if spotify_account is None:
         return web.Response(text=json.dumps({'success': False, 'message': 'Spotify account not found'}), headers=resp_headers)
