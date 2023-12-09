@@ -669,11 +669,14 @@ async def app_api_account_accountType_accountId_accountSecret(request : web.Requ
         return web.Response(text=json.dumps({'success': False, 'message': 'spotify account not found'}))
     return web.Response(text=json.dumps({'success': False, 'message': 'invalid account type'}))
 
-@routes.get('/api/spotify/{accountSecret:[a-zA-Z0-9]+}/accessToken')
+@routes.get('/api/spotify/getAccessToken')
 async def app_api_spotify_accountSecret_accessToken(request : web.Request):
-    accountSecret = request.match_info['accountSecret']
-    spotify_account = await db.get_spotify_account_by_id_token(accountSecret)
-    spotify_account = await sm.test_spotify_tokens(spotify_account)
+    account_token_header = request.headers.get('account_token', None)
+    if account_token_header is None: 
+        return web.Response(text=json.dumps({'success': False, 'message': 'account_token have to exist as a header'}))
+    spotify_account = await db.get_spotify_account_by_id_token(account_token_header)
+    await sm.test_spotify_tokens(spotify_account)
+    spotify_account = await db.get_spotify_account_by_id_token(account_token_header)
     return web.Response(text=json.dumps({'success': True, 'access_token': spotify_account.access_token, 'validity': helper.datetime_string(spotify_account.validity)}))
 
 @routes.post('/webhook/twitch_live')

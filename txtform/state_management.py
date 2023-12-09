@@ -160,12 +160,7 @@ class StateManagement():
         scopes = scope.split(' ')
 
         updated_account = await self.__db.update_spotify_tokens(spotify, access_token, refresh_token, scopes, validity)
-        spotify.access_token = updated_account.access_token
-        spotify.refresh_token = updated_account.refresh_token
-        spotify.scopes = updated_account.scopes
-        spotify.validity = updated_account.validity
         return updated_account
     
     async def test_spotify_tokens(self, spotify : objects.Spotify):
-        fetched_data = await self.__spotify_api_fetch(spotify)
-        return spotify
+        await self.__spotify_api_fetch(spotify)
